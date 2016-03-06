@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class CrimeFragment extends Fragment {
 
-    private final String DATE_FORMAT = "EEEE, LLL d, yyyy";
+    private final String DATE_FORMAT = "EEEE, MMM d, yyyy";
     private final Locale LOCALE = Locale.US;
 
     private Crime mCrime;
