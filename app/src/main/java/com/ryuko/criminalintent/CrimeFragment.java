@@ -28,7 +28,9 @@ public class CrimeFragment extends Fragment {
     private final Locale LOCALE = Locale.US;
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_CONFIRM = "DialogConfirm";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_CONFIRM = 1;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -110,15 +112,21 @@ public class CrimeFragment extends Fragment {
             mCrime.setDate(date);
             updateDate();
         }
+        if (requestCode == REQUEST_CONFIRM){
+            CrimeLab crimeLab = CrimeLab.get(getActivity());
+            crimeLab.deleteCrime(mCrime);
+            getActivity().finish();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.menu_item_delete_crime:
-                CrimeLab crimeLab = CrimeLab.get(getActivity());
-                crimeLab.deleteCrime(mCrime);
-                getActivity().finish();
+                FragmentManager manager = getFragmentManager();
+                DeleteConfirmFragment dialog = new DeleteConfirmFragment();
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_CONFIRM);
+                dialog.show(manager, DIALOG_CONFIRM);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
