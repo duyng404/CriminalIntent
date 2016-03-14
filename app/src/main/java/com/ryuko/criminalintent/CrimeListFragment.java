@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -90,20 +91,51 @@ public class CrimeListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
-        mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
-        mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        if (savedInstanceState != null){
-            mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        if (crimeCount == 0) {
+            View view = inflater.inflate(R.layout.fragment_crime_list_empty, container, false);
+            addListenerToButton(view);
+            return view;
+        } else {
+            View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
+            mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
+            mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            if (savedInstanceState != null) {
+                mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+            }
+            updateUI();
+            return view;
         }
-        updateUI();
-        return view;
+    }
+
+    private void addListenerToButton(View view) {
+        Button addCrimeButton = (Button) view.findViewById(R.id.button_add_crime);
+        addCrimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addCrime();
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        if (crimeCount == 0){
+            ViewGroup container = (ViewGroup) getView().getParent();
+            if (container != null) {
+                container.removeAllViews();
+                View newView = LayoutInflater.from(getActivity())
+                        .inflate(R.layout.fragment_crime_list_empty, container, false);
+                addListenerToButton(newView);
+                container.addView(newView);
+            }
+        } else {
+            updateUI();
+        }
     }
 
     @Override
@@ -140,11 +172,7 @@ public class CrimeListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.menu_item_new_crime:
-                Crime crime = new Crime();
-                CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity
-                        .newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+                addCrime();
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -156,10 +184,19 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
+    private void addCrime() {
+        Crime crime = new Crime();
+        CrimeLab.get(getActivity()).addCrime(crime);
+        Intent intent = CrimePagerActivity
+                .newIntent(getActivity(), crime.getId());
+        startActivity(intent);
+    }
+
     private void updateSubtitle(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        String subtitle = getResources()
+                .getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount);
         if (!mSubtitleVisible){
             subtitle = null;
         }
