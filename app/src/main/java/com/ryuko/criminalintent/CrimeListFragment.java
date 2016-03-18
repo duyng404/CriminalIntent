@@ -81,6 +81,10 @@ public class CrimeListFragment extends Fragment {
         public int getItemCount() {
             return mCrimes.size();
         }
+
+        public void setCrimes(List<Crime> crimes){
+            mCrimes = crimes;
+        }
     }
 
     @Override
@@ -96,6 +100,9 @@ public class CrimeListFragment extends Fragment {
         if (crimeCount == 0) {
             View view = inflater.inflate(R.layout.fragment_crime_list_empty, container, false);
             addListenerToButton(view);
+            if (savedInstanceState != null) {
+                mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+            }
             return view;
         } else {
             View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
@@ -151,6 +158,7 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
+            mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
         updateSubtitle();
