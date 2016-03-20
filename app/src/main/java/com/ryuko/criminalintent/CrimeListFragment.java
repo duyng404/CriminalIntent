@@ -140,6 +140,7 @@ public class CrimeListFragment extends Fragment {
                 addListenerToButton(newView);
                 container.addView(newView);
             }
+            updateSubtitle();
         } else {
             updateUI();
         }

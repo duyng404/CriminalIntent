@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.ryuko.criminalintent.database.CrimeBaseHelper;
-import com.ryuko.criminalintent.database.database.CrimeCursorWrapper;
+import com.ryuko.criminalintent.database.CrimeCursorWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,10 @@ public class CrimeLab {
     }
 
     public void deleteCrime(Crime c){
+        String uuidString = c.getId().toString();
+        mDatabase.delete(CrimeTable.NAME,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { uuidString });
     }
 
     public List<Crime> getCrimes(){
